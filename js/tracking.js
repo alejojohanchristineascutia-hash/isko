@@ -31,6 +31,12 @@
       const list = load(), rec = list.find(item => item.id === id);
       if (!rec) return null;
       change(rec); save(list); return rec;
+    },
+    remove(id) {
+      const list = load();
+      const next = list.filter(rec => rec.id !== id);
+      if (next.length === list.length) return false;
+      save(next); return true;
     }
   };
   ISKO.statusBadge = rec => `<span class="status-badge status-${rec.status}">${label(rec.status)}</span>`;

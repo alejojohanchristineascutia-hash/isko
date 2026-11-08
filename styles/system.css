@@ -1,0 +1,33 @@
+/* In-system styles */
+.kiosk-bar .brand-logo {
+  width: 150x !important;
+  height: 100px !important;
+  margin-left: -200px;
+  margin-right: -200px;  
+  object-fit: contain;
+}
+
+.preview-actions {height: 10px;}
+.gcash-qr { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 18px 0; padding: 14px; background: #fff; border: 1px solid #dfe6ed; border-radius: 8px; }
+.gcash-qr img { display: block; width: min(220px, 100%); height: auto; aspect-ratio: 1; object-fit: contain; margin: 0 auto; }
+.gcash-qr span { color: #718295; font-size: 10px; font-weight: 600; }
+.gcash-qr a { display: block; width: fit-content; margin: 0 auto; cursor: zoom-in; }
+.button.danger { width: 42px; min-width: 42px; padding: 10px; font-size: 0 !important; color: transparent !important; border: 1px solid #f0cfc7; background: #fff7f5; }
+.button.danger:hover { background: #fdebe7; }
+.button.danger::before { content: '🗑'; color: #a65242; font-size: 16px; line-height: 1; }
+#qr-dialog { padding: 24px; text-align: center; }
+#qr-dialog img { display: block; width: min(420px, 80vw); max-height: 75vh; object-fit: contain; margin: 0 auto 18px; }
+#qr-dialog .button { min-width: 120px; }
+.history-detail { background: #fff; border: 1px solid #dfe6ed; border-radius: 12px; overflow: hidden; }
+.history-detail-header, .history-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; }
+.history-detail-header { border-bottom: 1px solid #e5ebf1; }
+.history-detail-header h2 { margin-top: 7px; font-size: 20px; }
+.history-detail-header p { margin-top: 5px; color: #8795a5; font-size: 11px; }
+.history-detail-preview { max-height: 650px; overflow-y: auto; padding: 24px; background: #f1f4f8; }
+.history-detail-actions { border-top: 1px solid #e5ebf1; justify-content: flex-end; }
+@media (max-width: 650px) {
+  .preview-actions { gap: 6px; }
+  .history-detail-header { align-items: flex-start; flex-direction: column; }
+  .history-detail-preview { padding: 12px; }
+  .history-detail-actions { padding: 16px; }
+}

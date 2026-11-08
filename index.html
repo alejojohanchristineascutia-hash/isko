@@ -8,11 +8,27 @@
   <title>ISKO | Student Document Services</title>
   <link rel="icon" href="assets/isko.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles/landing.css">
+  <link rel="stylesheet" href="styles/system.css">
   <link rel="stylesheet" href="styles/demo-accounts.css">
   <link rel="stylesheet" href="styles/kiosk.css">
   <style>
     .preview-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
     .create-account-button { width: 100%; margin-top: 10px; }
+    .brand-logo {width: 500px; height: 400px; margin-bottom: -100px; margin-top: -100px;}
+    .brand-light .brand-logo { width: 500px; }
+    .gcash-qr { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 18px 0; padding: 14px; background: #fff; border: 1px solid #dfe6ed; border-radius: 8px; }
+    .gcash-qr img { display: block; width: min(220px, 100%); height: auto; aspect-ratio: 1; object-fit: contain; }
+    .gcash-qr span { color: #718295; font-size: 10px; font-weight: 600; }
+    .button.danger { border: 1px solid #f0cfc7; background: #fff7f5; color: #a65242; }
+    .button.danger:hover { background: #fdebe7; }
+    .button.danger { width: 42px; min-width: 42px; padding: 10px; font-size: 0 !important; color: transparent !important; }
+    .button.danger::before { content: '🗑'; color: #a65242; font-size: 16px; line-height: 1; }
+    .gcash-qr a { display: block; width: fit-content; margin: 0 auto; cursor: zoom-in; }
+    .gcash-qr img { margin: 0 auto; }
+    #qr-dialog { padding: 24px; text-align: center; }
+    #qr-dialog img { display: block; width: min(420px, 80vw); max-height: 75vh; object-fit: contain; margin: 0 auto 18px; }
+    #qr-dialog .button { min-width: 120px; }
     .history-detail { background: #fff; border: 1px solid #dfe6ed; border-radius: 12px; overflow: hidden; }
     .history-detail-header, .history-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; }
     .history-detail-header { border-bottom: 1px solid #e5ebf1; }
@@ -34,7 +50,7 @@
 <body class="kiosk">
   <div id="login-view" class="login-view">
     <section class="login-story">
-      <a class="brand brand-light" href="index.html"><span class="brand-mark">i<span>✦</span></span><span>ISKO<span class="brand-dot">.</span></span></a>
+      <a class="brand brand-light" href="index.html"><img class="brand-logo" src="assets/ISKO%20LOGO%20(1).png" alt="ISKO"></a>
       <span class="story-eyebrow">BICOL UNIVERSITY · STUDENT SERVICES</span>
       <h1>Less waiting.<br>More <span>possibilities.</span></h1>
       <p>Your academic documents, one simple request away. A little less paperwork for your next big step.</p>
@@ -70,7 +86,7 @@
   <div id="app-view" class="app-view" hidden>
     <div class="app-body">
       <header class="kiosk-bar">
-        <a class="brand" href="#request" aria-label="ISKO home"><span class="brand-mark">i<span>✦</span></span><span>ISKO<span class="brand-dot">.</span></span></a>
+        <a class="brand" href="#request" aria-label="ISKO home"><img class="brand-logo" src="assets/ISKO%20LOGO%20(1).png" alt="ISKO"></a>
         <nav class="kiosk-nav" aria-label="Main navigation">
           <button class="nav-item active" data-action="nav-request"><span data-icon="grid"></span> Request a document</button>
           <button class="nav-item" data-action="nav-history"><span data-icon="folder"></span> My requests <span id="history-count" class="nav-count">0</span></button>
@@ -98,6 +114,7 @@
     </div>
   </div>
   <dialog id="info-dialog"><div id="dialog-content"></div><button class="dialog-close icon-button" data-action="close-dialog" aria-label="Close dialog"><span data-icon="close"></span></button></dialog>
+  <dialog id="qr-dialog"><img src="assets/507cf655-5dac-4edb-8825-b17f17fda89e.jpg" alt="GCash payment QR code"><button class="button secondary" data-action="qr-close">Back</button></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
   <div id="print-area"></div>
 </body>
