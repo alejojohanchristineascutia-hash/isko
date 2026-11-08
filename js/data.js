@@ -1,8 +1,8 @@
 window.ISKO = window.ISKO || {};
 ISKO.demoAccounts = [
-  { name: 'Iska Dela Cruz', studentId: '2024-01012', course: 'BS Information Technology' },
-  { name: 'Juan Santos', studentId: '2023-02045', course: 'BS Civil Engineering' },
-  { name: 'Maria Reyes', studentId: '2025-03078', course: 'BS Nursing' }
+  { name: 'Iska Dela Cruz', studentId: '2024-01012', course: 'BS Information Technology', email: 'iska.delacruz@example.com' },
+  { name: 'Juan Santos', studentId: '2023-02045', course: 'BS Civil Engineering', email: 'juan.santos@example.com' },
+  { name: 'Maria Reyes', studentId: '2025-03078', course: 'BS Nursing', email: 'maria.reyes@example.com' }
 ];
 ISKO.catalog = [
   { id: 'cor', short: 'COR', name: 'Certificate of Registration', description: 'Your official record of subjects and enrollment.', price: 50, days: '1–2 working days', icon: 'registration', color: 'blue', tag: 'MOST REQUESTED' },

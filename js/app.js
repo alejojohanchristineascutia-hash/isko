@@ -15,7 +15,7 @@
   const registrarFlow = () => draft.docId === 'other' && !generated;
   const flowSteps = () => registrarFlow() ? ['Student login', 'Choose document', 'Enter details', 'Registrar'] : ISKO.steps;
   const doc = () => ISKO.catalog.find(item => item.id === draft.docId);
-  const requestHistory = () => ISKO.store.get('requests', []).filter(item => item.student.studentId.toLowerCase() === student.studentId.toLowerCase());
+  const requestHistory = () => ISKO.requests.all().filter(item => item.student.studentId.toLowerCase() === student.studentId.toLowerCase());
   const heading = (title, text, number) => `<div class="section-heading"><div><h2>${title}</h2><p>${text}</p></div><span class="section-step">STEP ${number} OF ${registrarFlow() ? 3 : 4}</span></div>`;
   const options = (values, selected) => values.map(value => `<option${value === selected ? ' selected' : ''}>${e(value)}</option>`).join('');
   const required = '<span class="required-mark">*</span>';
@@ -82,7 +82,7 @@
   }
   function renderPreview() {
     const stubOnly = generated.docId === 'other';
-    return `${heading('One last look. All set for your next step.', stubOnly ? 'Review your payment / claim stub before printing.' : 'Review your sample document and claim stub before printing.', 4)}<div class="preview-toolbar"><span>${icon('circle-check')} Saved ${where} · ${stubOnly ? 'Claim stub' : 'Document + claim stub'}</span><span class="preview-reference">${e(generated.id)}</span></div><div class="document-preview" tabindex="0" aria-label="Document and claim stub preview">${ISKO.documentMarkup(generated)}</div><div class="info-bar">${icon('print')}<span>${K.directPrint ? (stubOnly ? 'Tap Print to send your claim stub to the printer. Present it at the issuing office or cashier.' : 'Tap Print to send the document and claim stub to the printer. Take every page with you when you leave.') : 'Print includes the document and stub together. Choose “Save as PDF” in the print dialog to keep a digital copy. Print one packet per requested copy if needed.'}</span></div>`;
+    return `${heading('One last look. All set for your next step.', stubOnly ? 'Review your payment / claim stub before printing.' : 'Review your sample document and claim stub before printing.', 4)}${generated.queueNo ? ISKO.queueBannerMarkup(ISKO.requests.get(generated.id) || generated) : ''}<div class="preview-toolbar"><span>${icon('circle-check')} Saved ${where} · ${stubOnly ? 'Claim stub' : 'Document + claim stub'}</span><span class="preview-reference">${e(generated.id)}</span></div><div class="document-preview" tabindex="0" aria-label="Document and claim stub preview">${ISKO.documentMarkup(generated)}</div><div class="info-bar">${icon('print')}<span>${K.directPrint ? (stubOnly ? 'Tap Print to send your claim stub to the printer. Present it at the issuing office or cashier.' : 'Tap Print to send the document and claim stub to the printer. Take every page with you when you leave.') : 'Print includes the document and stub together. Choose “Save as PDF” in the print dialog to keep a digital copy. Print one packet per requested copy if needed.'}</span></div>`;
   }
   function renderFooter() {
     const previous = step > 1 ? `<button class="button ghost" data-action="back">${icon('arrow-left')} Back</button>` : `<span class="footer-hint">${icon('lock')} Simple. Local. Student-first.</span>`;
@@ -105,12 +105,11 @@
   }
   function generate() {
     if (generated) return;
-    generated = { ...draft, student: { ...student }, id: ISKO.requestId(), createdAt: new Date().toISOString() };
-    const records = ISKO.store.get('requests', []);
-    records.unshift(generated);
-    const persisted = ISKO.store.set('requests', records);
+    const result = ISKO.createRequest({ ...draft, student: { ...student }, id: ISKO.requestId(), createdAt: new Date().toISOString() });
+    generated = result.record;
+    const persisted = result.persisted;
     updateHistoryCount();
-    toast(persisted ? `Your request is saved ${where}. Ready to preview.` : 'Browser storage is unavailable. Print now to keep your request.', !persisted);
+    toast(persisted ? `Your request is saved ${where}. Your queue number is ${generated.queueNo}.` : 'Browser storage is unavailable. Print now to keep your request.', !persisted);
   }
   function next() {
     if (step === 2 && !validateDetails()) return;
@@ -126,8 +125,14 @@
   function renderHistory() {
     const records = requestHistory();
     if (!records.length) { $('history-content').innerHTML = `<div class="empty-state"><span class="doc-icon blue">${icon('folder')}</span><h2>Your next step starts here.</h2><p>Your saved requests will appear here once you generate a preview.</p><button class="button primary" data-action="nav-request">Request a document ${icon('arrow-right')}</button></div>`; return; }
-    $('history-content').innerHTML = `<div class="history-card"><div class="history-toolbar"><h2>Saved ${where}</h2><span>${records.length} ${records.length === 1 ? 'request' : 'requests'}</span></div>${records.map(record => { const item = ISKO.catalog.find(document => document.id === record.docId); return `<article class="request-record"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div class="record-main"><h3>${e(record.docId === 'other' ? record.otherDocument : item.name)}</h3><p>${e(record.id)} · ${new Date(record.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} · ${record.copies} ${record.copies === 1 ? 'copy' : 'copies'} · Local demo</p></div><span class="record-price">${item.price === null ? 'For assessment' : ISKO.money(item.price * record.copies)}</span><button class="button secondary" data-action="open-request" data-id="${e(record.id)}">${icon('eye')} View & print</button></article>`; }).join('')}</div>`;
+    $('history-content').innerHTML = `<div class="history-card"><div class="history-toolbar"><h2>Saved ${where}</h2><span>${records.length} ${records.length === 1 ? 'request' : 'requests'}</span></div>${records.map(record => { const item = ISKO.catalog.find(document => document.id === record.docId); return `<article class="request-record"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div class="record-main"><h3>${e(record.docId === 'other' ? record.otherDocument : item.name)} ${ISKO.statusBadge(record)}</h3><p>${e(record.id)} · ${new Date(record.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} · ${record.copies} ${record.copies === 1 ? 'copy' : 'copies'}${record.queueNo ? ` · Queue ${e(record.queueNo)}` : ''}</p></div><span class="record-price">${item.price === null ? 'For assessment' : ISKO.money(item.price * record.copies)}</span><button class="button primary" data-action="track-request" data-id="${e(record.id)}">${icon('clock')} Track</button><button class="button secondary" data-action="open-request" data-id="${e(record.id)}">${icon('eye')} View & print</button></article>`; }).join('')}</div>`;
   }
+  window.addEventListener('isko:requests-changed', () => {
+    if (!student) return;
+    updateHistoryCount();
+    if (!$('history-view').hidden) renderHistory();
+    else if (step === 4 && generated && !registrarFlow()) render();
+  });
   function signOut() {
     if (student) {
       ISKO.store.remove(`draft.${student.studentId}`);
@@ -148,7 +153,7 @@
     const action = actionElement.dataset.action;
     if (action === 'demo-login') {
       const account = ISKO.demoAccounts.find(profile => profile.studentId === actionElement.dataset.account);
-      if (account) setStudent({ ...account });
+      if (account) { setStudent({ ...account }); ISKO.notifySignIn(account); }
       return;
     }
     if (action === 'close-dialog') { $('info-dialog').close(); return; }
@@ -185,9 +190,9 @@
     event.preventDefault();
     if (event.target.id === 'login-form') {
       const form = new FormData(event.target);
-      const profile = { name: form.get('name').trim(), studentId: form.get('studentId').trim(), course: form.get('course').trim() };
+      const profile = { name: form.get('name').trim(), studentId: form.get('studentId').trim(), course: form.get('course').trim(), email: form.get('email').trim() };
       if (!profile.name || !profile.course) { toast('Please enter your name and degree program.', true); return; }
-      setStudent(profile);
+      setStudent(profile); ISKO.notifySignIn(profile);
     } else if (event.target.id === 'details-form' || event.target.id === 'payment-form') next();
   });
   $('info-dialog').addEventListener('click', event => { if (event.target === $('info-dialog')) { const bounds = event.target.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) event.target.close(); } });

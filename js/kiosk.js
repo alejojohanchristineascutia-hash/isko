@@ -40,7 +40,7 @@
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     [{ k: 'shift', label: '⇧', cls: 'wide' }, 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', '-'],
-    [{ k: 'clear', label: 'Clear', cls: 'wide small' }, "'", { k: ' ', label: 'space', cls: 'space' }, ',', { k: 'done', label: 'Done', cls: 'wide accent' }]
+    [{ k: 'clear', label: 'Clear', cls: 'wide small' }, "'", '@', '_', { k: ' ', label: 'space', cls: 'space' }, ',', { k: 'done', label: 'Done', cls: 'wide accent' }]
   ];
   function buildKeyboard() {
     osk = document.createElement('div');
@@ -66,7 +66,7 @@
     });
     osk.querySelector('[data-k="shift"]').classList.toggle('active', shift);
   }
-  function wantsAutoCap(el) { return !['student-id', 'payment-reference'].includes(el.id); }
+  function wantsAutoCap(el) { return !['student-id', 'payment-reference', 'student-email', 'track-ref', 'track-student'].includes(el.id); }
   function syncShift() {
     if (!target) return;
     const before = target.value.slice(0, target.selectionStart ?? target.value.length);
@@ -97,7 +97,7 @@
   }
   function openKeyboard(el) {
     if (!osk) buildKeyboard();
-    target = el; shiftLock = false; syncShift();
+    target = el; shiftLock = el.dataset.caps === 'true'; syncShift();
     osk.classList.add('open'); document.body.classList.add('osk-open');
     root.style.setProperty('--kb-h', `${osk.offsetHeight}px`);
     setTimeout(() => { if (target === el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 220);
@@ -159,7 +159,7 @@
   ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(type => document.addEventListener(type, resetActivity, { capture: true, passive: true }));
   function endWarning() { warningEndsAt = 0; lastActivity = Date.now(); if (idleDialog.open) idleDialog.close(); }
   function resetKiosk() {
-    endWarning(); closePicker(); closeKeyboard();
+    endWarning(); closePicker(); closeKeyboard(); if (ISKO.closeOverlays) ISKO.closeOverlays();
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     if (ISKO.isSignedIn()) ISKO.signOut();
   }
@@ -183,6 +183,7 @@
     } else if (now - lastActivity >= K.loginIdleSeconds * 1000) {
       const form = $('login-form');
       if ([...form.elements].some(field => field.value && field.type !== 'submit')) { form.reset(); closeKeyboard(); }
+      if (ISKO.closeOverlays) ISKO.closeOverlays();
       lastActivity = now;
     }
   }, 1000);

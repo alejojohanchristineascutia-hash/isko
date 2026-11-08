@@ -13,8 +13,10 @@
   <script defer src="js/kiosk-config.js"></script>
   <script defer src="js/data.js"></script>
   <script defer src="js/storage.js"></script>
+  <script defer src="js/tracking.js"></script>
   <script defer src="js/documents.js"></script>
   <script defer src="js/app.js"></script>
+  <script defer src="js/tracking-ui.js"></script>
   <script defer src="js/kiosk.js"></script>
 </head>
 <body class="kiosk">
@@ -33,9 +35,11 @@
         <span class="eyebrow">LET’S GET YOU STARTED</span>
         <h2>Welcome back, Iskolar<span class="orange">.</span></h2>
         <p class="muted">Sign in to request and print your academic documents.</p>
+        <button type="button" class="button secondary track-entry" data-action="track-open"><span data-icon="clock"></span> Already requested? Track your request</button>
         <form id="login-form">
           <label for="student-name">Full name</label><input id="student-name" name="name" placeholder="e.g. Iska Dela Cruz" autocomplete="name" required maxlength="100">
           <label for="student-id">Student number</label><input id="student-id" name="studentId" placeholder="e.g. 2024-01012" autocomplete="username" required pattern="[A-Za-z0-9-]{4,30}" title="Use 4–30 letters, numbers, or hyphens.">
+          <label for="student-email">Email address <span class="muted-inline">for status updates</span></label><input id="student-email" name="email" inputmode="email" placeholder="e.g. iska@example.com" autocomplete="email" required maxlength="120" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Enter a valid email address, like name@example.com.">
           <label for="student-course">Degree program</label><input id="student-course" name="course" placeholder="e.g. BS Information Technology" required maxlength="100">
           <button class="button primary login-submit" type="submit">Sign in to ISKO <span data-icon="arrow-right"></span></button>
         </form>
