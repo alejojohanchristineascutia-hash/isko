@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="styles/kiosk.css">
   <style>
     .preview-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .create-account-button { width: 100%; margin-top: 10px; }
     .history-detail { background: #fff; border: 1px solid #dfe6ed; border-radius: 12px; overflow: hidden; }
     .history-detail-header, .history-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; }
     .history-detail-header { border-bottom: 1px solid #e5ebf1; }
@@ -52,11 +53,12 @@
           <label for="student-email">Email address <span class="muted-inline">for status updates</span></label><input id="student-email" name="email" inputmode="email" placeholder="e.g. iska@example.com" autocomplete="email" required maxlength="120" pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Enter a valid email address, like name@example.com.">
           <label for="student-course">Degree program</label><input id="student-course" name="course" placeholder="e.g. BS Information Technology" required maxlength="100">
           <button class="button primary login-submit" type="submit">Sign in to ISKO <span data-icon="arrow-right"></span></button>
+          <a class="button secondary create-account-button" href="#create-account">Create an account</a>
         </form>
         <div class="login-divider"><span>or take a look around</span></div>
-        <section class="demo-accounts" aria-labelledby="demo-accounts-title">
-          <div class="demo-accounts-heading"><h3 id="demo-accounts-title">Demo accounts</h3><span>No password needed</span></div>
-          <p>Choose a student to try ISKO.</p>
+        <section id="create-account" class="demo-accounts create-account" aria-labelledby="demo-accounts-title">
+          <div class="demo-accounts-heading"><h3 id="demo-accounts-title">Create an account</h3><span>No password needed</span></div>
+          <p>Choose a demo account to get started.</p>
           <ul id="demo-accounts-list" class="demo-accounts-list"></ul>
         </section>
         <p class="demo-note"><span data-icon="shield"></span> Demo access. No university password needed. University systems are not connected.</p>
