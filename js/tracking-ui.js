@@ -37,6 +37,11 @@
     $('dialog-content').innerHTML = `<div class="dialog-title-icon">${icon('clock')}</div><h2>Where is my request?</h2><p>${e(ISKO.docName(rec))} · ${e(rec.id)}</p>${ISKO.trackerMarkup(rec)}<h3 class="timeline-title">History</h3>${ISKO.timelineMarkup(rec)}${rec.email ? `<p class="track-email">${icon('message')}Updates are emailed to <b>${e(rec.email)}</b>.</p>` : ''}<button class="button primary" data-action="close-dialog">Close ${icon('check')}</button>`;
     dialog.showModal();
   }
+  function showNotifications() {
+    const mails = ISKO.mail.outbox();
+    const rows = mails.map(mail => `<article class="mail-row"><div><b>${e(mail.subject)}</b><small>${e(mail.to)} · ${e(ISKO.stamp(mail.at))}</small></div><pre>${e(mail.body)}</pre></article>`).join('') || '<div class="empty-state"><h2>No notifications yet.</h2><p>Status updates will appear here when your request changes.</p></div>';
+    openOverlay('notifications-view', `<div class="overlay-panel wide"><header class="overlay-head"><h2>Email notifications</h2><button class="button secondary" data-action="overlay-close">${icon('arrow-left')} Back</button></header><div class="overlay-body"><p class="staff-note"><b>Prototype inbox:</b> these messages demonstrate the emails the system would send for account activity and document status changes.</p>${rows}</div></div>`);
+  }
 
   /* ---------- Student: track from the login screen ---------- */
   function openTrack() {
@@ -107,6 +112,7 @@
     const target = event.target.closest('[data-action]'); if (!target) return;
     const action = target.dataset.action;
     if (action === 'track-open') openTrack();
+    else if (action === 'notifications') showNotifications();
     else if (action === 'track-lookup') lookup();
     else if (action === 'track-request') { const rec = ISKO.requests.get(target.dataset.id); if (rec) showTrackDialog(rec); }
     else if (action === 'overlay-close') closeOverlays();

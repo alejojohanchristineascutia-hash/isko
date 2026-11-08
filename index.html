@@ -10,6 +10,17 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles/demo-accounts.css">
   <link rel="stylesheet" href="styles/kiosk.css">
+  <style>
+    .preview-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .history-detail { background: #fff; border: 1px solid #dfe6ed; border-radius: 12px; overflow: hidden; }
+    .history-detail-header, .history-detail-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; }
+    .history-detail-header { border-bottom: 1px solid #e5ebf1; }
+    .history-detail-header h2 { margin-top: 7px; font-size: 20px; }
+    .history-detail-header p { margin-top: 5px; color: #8795a5; font-size: 11px; }
+    .history-detail-preview { max-height: 650px; overflow-y: auto; padding: 24px; background: #f1f4f8; }
+    .history-detail-actions { border-top: 1px solid #e5ebf1; justify-content: flex-end; }
+    @media (max-width: 650px) { .preview-actions { gap: 6px; } .history-detail-header { align-items: flex-start; flex-direction: column; } .history-detail-preview { padding: 12px; } .history-detail-actions { padding: 16px; } }
+  </style>
   <script defer src="js/kiosk-config.js"></script>
   <script defer src="js/data.js"></script>
   <script defer src="js/storage.js"></script>
@@ -35,7 +46,6 @@
         <span class="eyebrow">LET’S GET YOU STARTED</span>
         <h2>Welcome back, Iskolar<span class="orange">.</span></h2>
         <p class="muted">Sign in to request and print your academic documents.</p>
-        <button type="button" class="button secondary track-entry" data-action="track-open"><span data-icon="clock"></span> Already requested? Track your request</button>
         <form id="login-form">
           <label for="student-name">Full name</label><input id="student-name" name="name" placeholder="e.g. Iska Dela Cruz" autocomplete="name" required maxlength="100">
           <label for="student-id">Student number</label><input id="student-id" name="studentId" placeholder="e.g. 2024-01012" autocomplete="username" required pattern="[A-Za-z0-9-]{4,30}" title="Use 4–30 letters, numbers, or hyphens.">

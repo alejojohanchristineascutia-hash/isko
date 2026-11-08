@@ -6,7 +6,7 @@
   ISKO.statuses = [
     { id: 'pending', label: 'Pending', note: 'We received your request. The office will verify your payment first.' },
     { id: 'queued', label: 'Queued', note: 'Your payment is confirmed and your request is in line.' },
-    { id: 'ready', label: 'Ready', note: 'Your document is ready. Bring your student ID and queue number.' },
+    { id: 'ready', label: 'Ready', note: 'Your document is ready. Bring your student ID.' },
     { id: 'completed', label: 'Completed', note: 'This request is complete. Thank you!' }
   ];
   const rank = id => ISKO.statuses.findIndex(status => status.id === id);
@@ -82,11 +82,12 @@
 
   /* ---------- Creating requests and moving them through the queue ---------- */
   ISKO.createRequest = base => {
-    const queue = nextQueue();
-    const rec = { ...base, email: (base.student && base.student.email) || '', status: 'pending', queueNo: queue.no, queueSeq: queue.seq, queueDate: queue.date, turnNoticeSent: false, events: [{ status: 'pending', at: base.createdAt, by: 'Student' }] };
+    const instant = base.docId === 'cor';
+    const queue = instant ? null : nextQueue();
+    const rec = { ...base, email: (base.student && base.student.email) || '', status: instant ? 'ready' : 'pending', ...(queue ? { queueNo: queue.no, queueSeq: queue.seq, queueDate: queue.date } : {}), turnNoticeSent: false, events: [{ status: instant ? 'ready' : 'pending', at: base.createdAt, by: 'Student' }] };
     const list = load(); list.unshift(rec);
     const persisted = save(list);
-    notify('received', rec);
+    if (!instant) notify('received', rec);
     return { record: rec, persisted };
   };
 

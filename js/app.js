@@ -8,6 +8,7 @@
   let draft = ISKO.defaultRequest();
   let step = 1;
   let generated = null;
+  let historyDetail = false;
   let toastTimer;
   const initials = name => name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
   // "Other document" requests skip payment and preview: the student is sent to the Registrar instead.
@@ -52,12 +53,13 @@
     if (view === 'history') renderHistory(); else render();
   }
   function renderStepper() {
-    $('stepper').innerHTML = flowSteps().map((label, index) => `<li class="${index < step ? 'complete' : index === step ? 'current' : ''}"${index === step ? ' aria-current="step"' : ''}><button data-action="goto-step" data-step="${index}" ${index > step ? 'disabled' : ''}><span class="step-number">${index < step ? icon('check') : index + 1}</span><span>${label}</span></button></li>`).join('');
+    $('stepper').innerHTML = flowSteps().slice(1).map((label, visibleIndex) => { const index = visibleIndex + 1; return `<li class="${index < step ? 'complete' : index === step ? 'current' : ''}"${index === step ? ' aria-current="step"' : ''}><button data-action="goto-step" data-step="${index}" ${index > step ? 'disabled' : ''}><span class="step-number">${index < step ? icon('check') : visibleIndex + 1}</span><span>${label}</span></button></li>`; }).join('');
   }
   function renderSummary() {
     const item = doc();
     const row = (label, value) => `<div class="summary-row"><span>${label}</span><span${value ? '' : ' class="placeholder"'}>${e(value || 'Not set yet')}</span></div>`;
-    $('summary-content').innerHTML = `<div class="summary-document"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div><b>${e(draft.docId === 'other' && draft.otherDocument ? draft.otherDocument : item.short)}</b><small>${e(item.name)}</small></div></div>${row('Academic year', draft.year)}${row('Semester', draft.term)}${row('Purpose', draft.purpose === 'Other' ? draft.customPurpose : draft.purpose)}${row('No. of copies', `${draft.copies} ${draft.copies === 1 ? 'copy' : 'copies'}`)}${registrarFlow() ? '' : row('Payment', step >= 3 ? ISKO.payments.find(payment => payment.id === draft.payment).name : '')}<div class="summary-total"><span>Estimated total</span><b class="${item.price === null ? 'assessment' : ''}">${item.price === null ? 'For assessment' : ISKO.money(item.price * draft.copies)}</b></div><div class="fee-note">${item.price === null ? 'Final fee confirmed by the issuing office' : `${ISKO.money(item.price)} per copy · Illustrative demo fee`}</div><div class="processing-note">${icon('clock')}<div><b>${e(item.days)}</b><p>${registrarFlow() ? 'Fee and processing time are assessed by the Registrar.' : 'Estimated processing after payment verification. Subject to office assessment.'}</p></div></div>`;
+    const instant = draft.docId === 'cor';
+    $('summary-content').innerHTML = `<div class="summary-document"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div><b>${e(draft.docId === 'other' && draft.otherDocument ? draft.otherDocument : item.short)}</b><small>${e(item.name)}</small></div></div>${row('Academic year', draft.year)}${row('Semester', draft.term)}${row('Purpose', draft.purpose === 'Other' ? draft.customPurpose : draft.purpose)}${row('No. of copies', `${draft.copies} ${draft.copies === 1 ? 'copy' : 'copies'}`)}${registrarFlow() ? '' : row('Payment', step >= 3 ? ISKO.payments.find(payment => payment.id === draft.payment).name : '')}<div class="summary-total"><span>Estimated total</span><b class="${item.price === null ? 'assessment' : ''}">${item.price === null ? 'For assessment' : ISKO.money(item.price * draft.copies)}</b></div><div class="fee-note">${item.price === null ? 'Final fee confirmed by the issuing office' : `${ISKO.money(item.price)} per copy · Illustrative demo fee`}</div><div class="processing-note">${icon(instant ? 'check' : 'clock')}<div><b>${e(item.days)}</b><p>${instant ? 'Your Certificate of Registration is available immediately after your request.' : registrarFlow() ? 'Fee and processing time are assessed by the Registrar.' : 'Estimated processing after payment verification. Subject to office assessment.'}</p></div></div>`;
   }
   function renderDocuments() {
     return `${heading('What document do you need?', 'Select a document to get started with your request.', 1)}<div class="document-grid">${ISKO.catalog.map(item => `<label class="document-choice${draft.docId === item.id ? ' selected' : ''}"><input type="radio" name="document" value="${item.id}"${draft.docId === item.id ? ' checked' : ''} aria-label="${e(item.name)}"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><h3>${item.short}</h3><span class="full-doc-name">${item.name}</span><p>${item.description}</p><div class="document-card-bottom"><b>${item.price === null ? 'For assessment' : ISKO.money(item.price)}</b>${item.tag ? `<small>${item.tag}</small>` : `<span class="doc-time">${icon('clock')} ${item.days}</span>`}</div></label>`).join('')}</div><div class="info-bar">${icon('info')}<span>One document type per request. Fees and processing times shown are sample estimates.</span></div>`;
@@ -86,7 +88,7 @@
   }
   function renderFooter() {
     const previous = step > 1 ? `<button class="button ghost" data-action="back">${icon('arrow-left')} Back</button>` : `<span class="footer-hint">${icon('lock')} Simple. Local. Student-first.</span>`;
-    const next = step === 4 && registrarFlow() ? `<button class="button primary" data-action="sign-out">${icon('logout')} Finish & sign out</button>` : step === 4 ? `<button class="button primary" data-action="print">${icon('print')} ${draft.docId === 'other' ? 'Print claim stub' : 'Print document & stub'}</button>` : `<button class="button primary" data-action="next">${step === 1 ? 'Continue to details' : step === 2 ? (registrarFlow() ? 'Continue' : 'Continue to payment') : 'Generate preview'} ${icon(step === 3 ? 'eye' : 'arrow-right')}</button>`;
+    const next = step === 4 && registrarFlow() ? `<button class="button primary" data-action="nav-history">${icon('logout')} Finish</button>` : step === 4 ? `<div class="preview-actions"><button class="button secondary" data-action="finish-request">${icon('logout')} Finish</button><button class="button primary" data-action="print">${icon('print')} ${draft.docId === 'other' ? 'Print claim stub' : 'Print document & stub'}</button></div>` : `<button class="button primary" data-action="next">${step === 1 ? 'Continue to details' : step === 2 ? (registrarFlow() ? 'Continue' : 'Continue to payment') : 'Generate preview'} ${icon(step === 3 ? 'eye' : 'arrow-right')}</button>`;
     $('step-footer').innerHTML = previous + next;
   }
   function render() {
@@ -109,7 +111,7 @@
     generated = result.record;
     const persisted = result.persisted;
     updateHistoryCount();
-    toast(persisted ? `Your request is saved ${where}. Your queue number is ${generated.queueNo}.` : 'Browser storage is unavailable. Print now to keep your request.', !persisted);
+    toast(persisted ? (generated.docId === 'cor' ? `Your Certificate of Registration is ready instantly.` : `Your request is saved ${where}. Your queue number is ${generated.queueNo}.`) : 'Browser storage is unavailable. Print now to keep your request.', !persisted);
   }
   function next() {
     if (step === 2 && !validateDetails()) return;
@@ -123,9 +125,14 @@
     $('step-content').scrollTop = 0;
   }
   function renderHistory() {
+    if (historyDetail && generated) {
+      const item = doc();
+      $('history-content').innerHTML = `<div class="history-detail"><div class="history-detail-header"><div><span class="eyebrow">REQUEST DETAILS</span><h2>${e(generated.docId === 'other' ? generated.otherDocument : item.name)}</h2><p>${e(generated.id)} · ${new Date(generated.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</p></div><button class="button secondary" data-action="nav-history">${icon('arrow-left')} Back to My requests</button></div><div class="history-detail-preview">${ISKO.documentMarkup(generated)}</div><div class="history-detail-actions"><button class="button secondary" data-action="nav-history">${icon('arrow-left')} Back to My requests</button><button class="button primary" data-action="print">${icon('print')} Print document & stub</button></div></div>`;
+      return;
+    }
     const records = requestHistory();
     if (!records.length) { $('history-content').innerHTML = `<div class="empty-state"><span class="doc-icon blue">${icon('folder')}</span><h2>Your next step starts here.</h2><p>Your saved requests will appear here once you generate a preview.</p><button class="button primary" data-action="nav-request">Request a document ${icon('arrow-right')}</button></div>`; return; }
-    $('history-content').innerHTML = `<div class="history-card"><div class="history-toolbar"><h2>Saved ${where}</h2><span>${records.length} ${records.length === 1 ? 'request' : 'requests'}</span></div>${records.map(record => { const item = ISKO.catalog.find(document => document.id === record.docId); return `<article class="request-record"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div class="record-main"><h3>${e(record.docId === 'other' ? record.otherDocument : item.name)} ${ISKO.statusBadge(record)}</h3><p>${e(record.id)} · ${new Date(record.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} · ${record.copies} ${record.copies === 1 ? 'copy' : 'copies'}${record.queueNo ? ` · Queue ${e(record.queueNo)}` : ''}</p></div><span class="record-price">${item.price === null ? 'For assessment' : ISKO.money(item.price * record.copies)}</span><button class="button primary" data-action="track-request" data-id="${e(record.id)}">${icon('clock')} Track</button><button class="button secondary" data-action="open-request" data-id="${e(record.id)}">${icon('eye')} View & print</button></article>`; }).join('')}</div>`;
+    $('history-content').innerHTML = `<div class="history-card"><div class="history-toolbar"><h2>Saved ${where}</h2><span>${records.length} ${records.length === 1 ? 'request' : 'requests'}</span><button class="button secondary" data-action="notifications">${icon('message')} Email notifications</button></div>${records.map(record => { const item = ISKO.catalog.find(document => document.id === record.docId); return `<article class="request-record"><span class="doc-icon ${item.color}">${icon(item.icon)}</span><div class="record-main"><h3>${e(record.docId === 'other' ? record.otherDocument : item.name)} ${ISKO.statusBadge(record)}</h3><p>${e(record.id)} · ${new Date(record.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })} · ${record.copies} ${record.copies === 1 ? 'copy' : 'copies'}${record.queueNo ? ` · Queue ${e(record.queueNo)}` : ''}</p></div><span class="record-price">${item.price === null ? 'For assessment' : ISKO.money(item.price * record.copies)}</span><button class="button primary" data-action="track-request" data-id="${e(record.id)}">${icon('clock')} Track</button><button class="button secondary" data-action="open-request" data-id="${e(record.id)}">${icon('eye')} View & print</button></article>`; }).join('')}</div>`;
   }
   window.addEventListener('isko:requests-changed', () => {
     if (!student) return;
@@ -162,12 +169,13 @@
     if (action === 'next') next();
     if (action === 'back') { step = step === 4 && registrarFlow() ? 2 : Math.max(1, step - 1); render(); }
     if (action === 'goto-step') { const target = Number(actionElement.dataset.step); if (target > 0 && target < step) { step = target; render(); } if (target === 0) document.querySelector('[data-action="profile"]').click(); }
-    if (action === 'nav-request') navigate('request');
-    if (action === 'nav-history') navigate('history');
-    if (action === 'new-request') { draft = ISKO.defaultRequest(); step = 1; saveDraft(); navigate('request'); }
+    if (action === 'nav-request') { draft = ISKO.defaultRequest(); generated = null; step = 1; saveDraft(); navigate('request'); }
+    if (action === 'nav-history') { historyDetail = false; navigate('history'); }
+    if (action === 'finish-request') { if (generated?.docId === 'cor' && generated.status !== 'completed') ISKO.setStatus(generated.id, 'completed', 'System'); historyDetail = false; navigate('history'); }
+    if (action === 'new-request') { historyDetail = false; draft = ISKO.defaultRequest(); step = 1; saveDraft(); navigate('request'); }
     if (action === 'increase-copies' || action === 'decrease-copies') { draft.copies = Math.max(1, Math.min(10, (Number(draft.copies) || 1) + (action === 'increase-copies' ? 1 : -1))); $('copies').value = draft.copies; saveDraft(); renderSummary(); }
     if (action === 'print') { $('print-area').innerHTML = ISKO.documentMarkup(generated); window.print(); if (K.directPrint) toast('Sent to the printer. Please collect your ' + (generated.docId === 'other' ? 'claim stub.' : 'document and claim stub.')); }
-    if (action === 'open-request') { generated = requestHistory().find(record => record.id === actionElement.dataset.id); if (!generated) return; draft = { ...generated }; step = 4; navigate('request'); }
+    if (action === 'open-request') { generated = requestHistory().find(record => record.id === actionElement.dataset.id); if (!generated) return; draft = { ...generated }; historyDetail = true; navigate('history'); }
     if (action === 'profile') { showDialog(`<div class="dialog-title-icon">${icon('user')}</div><h2>Your student workspace.</h2><div class="profile-detail"><span>FULL NAME</span><b>${e(student.name)}</b></div><div class="profile-detail"><span>STUDENT NUMBER</span><b>${e(student.studentId)}</b></div><div class="profile-detail"><span>DEGREE PROGRAM</span><b>${e(student.course)}</b></div><p>${K.keepHistory ? 'Demo profile. Your requests remain on this device after signing out.' : 'Demo profile. Your requests and answers are cleared when you sign out.'}</p><button class="button secondary" data-action="sign-out">${icon('logout')} Sign out</button>`); }
     if (action === 'sign-out') signOut();
   });
