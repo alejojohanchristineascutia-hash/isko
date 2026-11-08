@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#075d9c">
+  <meta name="description" content="ISKO — a Bicol University inspired student document request app.">
+  <title>ISKO | Student Document Services</title>
+  <link rel="icon" href="assets/isko.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles/demo-accounts.css">
+  <link rel="stylesheet" href="styles/kiosk.css">
+  <script defer src="js/kiosk-config.js"></script>
+  <script defer src="js/data.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/documents.js"></script>
+  <script defer src="js/app.js"></script>
+  <script defer src="js/kiosk.js"></script>
+</head>
+<body class="kiosk">
+  <div id="login-view" class="login-view">
+    <section class="login-story">
+      <a class="brand brand-light" href="index.html"><span class="brand-mark">i<span>✦</span></span><span>ISKO<span class="brand-dot">.</span></span></a>
+      <span class="story-eyebrow">BICOL UNIVERSITY · STUDENT SERVICES</span>
+      <h1>Less waiting.<br>More <span>possibilities.</span></h1>
+      <p>Your academic documents, one simple request away. A little less paperwork for your next big step.</p>
+      <div class="story-art" aria-hidden="true"><div class="art-orbit"></div><div class="art-sun"></div><div class="art-mountain"></div><div class="art-mountain-small"></div><div class="art-paper"><span class="mini-logo">BU</span><i></i><i></i><i></i><div>Ready for your next chapter.</div><b>✓</b></div><span class="art-spark spark-one">✦</span><span class="art-spark spark-two">✦</span></div>
+      <div class="story-footer"><span class="tiny-dot"></span> Built for the Iskolar. Designed for what’s next.</div>
+    </section>
+    <main class="login-main">
+      <div class="login-top">YOUR CAMPUS, CONNECTED <span>BU</span></div>
+      <div class="login-form-wrap">
+        <span class="eyebrow">LET’S GET YOU STARTED</span>
+        <h2>Welcome back, Iskolar<span class="orange">.</span></h2>
+        <p class="muted">Sign in to request and print your academic documents.</p>
+        <form id="login-form">
+          <label for="student-name">Full name</label><input id="student-name" name="name" placeholder="e.g. Iska Dela Cruz" autocomplete="name" required maxlength="100">
+          <label for="student-id">Student number</label><input id="student-id" name="studentId" placeholder="e.g. 2024-01012" autocomplete="username" required pattern="[A-Za-z0-9-]{4,30}" title="Use 4–30 letters, numbers, or hyphens.">
+          <label for="student-course">Degree program</label><input id="student-course" name="course" placeholder="e.g. BS Information Technology" required maxlength="100">
+          <button class="button primary login-submit" type="submit">Sign in to ISKO <span data-icon="arrow-right"></span></button>
+        </form>
+        <div class="login-divider"><span>or take a look around</span></div>
+        <section class="demo-accounts" aria-labelledby="demo-accounts-title">
+          <div class="demo-accounts-heading"><h3 id="demo-accounts-title">Demo accounts</h3><span>No password needed</span></div>
+          <p>Choose a student to try ISKO.</p>
+          <ul id="demo-accounts-list" class="demo-accounts-list"></ul>
+        </section>
+        <p class="demo-note"><span data-icon="shield"></span> Demo access. No university password needed. University systems are not connected.</p>
+      </div>
+      <footer class="login-footer">An easier way to take your next step. <span>Made for BU students.</span></footer>
+    </main>
+  </div>
+
+  <div id="app-view" class="app-view" hidden>
+    <div class="app-body">
+      <header class="kiosk-bar">
+        <a class="brand" href="#request" aria-label="ISKO home"><span class="brand-mark">i<span>✦</span></span><span>ISKO<span class="brand-dot">.</span></span></a>
+        <nav class="kiosk-nav" aria-label="Main navigation">
+          <button class="nav-item active" data-action="nav-request"><span data-icon="grid"></span> Request a document</button>
+          <button class="nav-item" data-action="nav-history"><span data-icon="folder"></span> My requests <span id="history-count" class="nav-count">0</span></button>
+        </nav>
+        <div class="kiosk-bar-actions">
+          <button class="icon-button help-button" data-action="help" aria-label="Help"><span data-icon="help"></span> Help</button>
+          <button class="profile-button" data-action="profile" aria-label="Your profile"><span id="avatar" class="avatar">ID</span><span><b id="profile-name">Iska Dela Cruz</b><small>Tap to view profile</small></span></button>
+          <button class="button primary done-button" data-action="sign-out"><span data-icon="logout"></span> Finish &amp; sign out</button>
+        </div>
+      </header>
+      <main class="workspace">
+        <section id="request-view">
+          <div class="page-intro"><div><span class="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h1>Academic documents, simplified<span class="orange">.</span></h1><p>From request to print. Let’s get your paperwork out of the way.</p></div><span class="intro-icon" data-icon="documents"></span></div>
+          <div class="welcome-banner"><span class="welcome-icon" data-icon="sparkles"></span><div><b id="welcome-name">Hi, Iska! Ready for your next step?</b><p>Choose what you need. We’ll walk you through the rest.</p></div><span class="banner-tag">A little less paperwork.</span><span class="banner-art" aria-hidden="true">✦</span></div>
+          <ol id="stepper" class="stepper" aria-label="Request progress"></ol>
+          <div class="request-layout">
+            <div class="request-main"><div id="step-content"></div><div id="step-footer" class="step-footer"></div></div>
+            <aside class="summary-panel"><div class="summary-title"><h3>Your request</h3><span data-icon="receipt"></span></div><div class="summary-student"><span class="avatar small" id="summary-avatar">ID</span><div><b id="summary-name"></b><small id="summary-id"></small></div><span class="student-status">Student</span></div><div id="summary-content"></div><div class="summary-note"><span data-icon="shield"></span><p id="summary-note-text">Preview documents are clearly marked as samples.</p></div></aside>
+          </div>
+          <div class="bottom-note"><span data-icon="lock"></span> A simpler, more thoughtful student experience.<span class="bottom-wordmark">Made for the <b>Iskolar.</b> <span class="orange">✦</span></span></div>
+        </section>
+        <section id="history-view" hidden><div class="page-intro"><div><span class="eyebrow">EVERY NEXT STEP, IN ONE PLACE</span><h1>My requests<span class="orange">.</span></h1><p>Revisit your documents and print your saved claim stubs.</p></div><button class="button primary" data-action="new-request"><span data-icon="plus"></span> New request</button></div><div id="history-content"></div></section>
+      </main>
+      <footer class="app-footer"><span>© <span id="year"></span> ISKO · Student document services</span><span>Bicol University inspired · Demo</span></footer>
+    </div>
+  </div>
+  <dialog id="info-dialog"><div id="dialog-content"></div><button class="dialog-close icon-button" data-action="close-dialog" aria-label="Close dialog"><span data-icon="close"></span></button></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="print-area"></div>
+</body>
+</html>
